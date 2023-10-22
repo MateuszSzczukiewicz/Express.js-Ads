@@ -1,9 +1,9 @@
-import { AdEntity } from "../types";
+import { AdEntity, NewAdEntity } from "../types";
 import { ValidationError } from "../utils/errors";
+import { pool } from "../utils/db";
+import { FieldPacket } from "mysql2";
 
-interface NewAdEntity {
-  id?: string;
-}
+type AdRecordResults = [AdEntity[], FieldPacket];
 
 export class AdRecord implements AdEntity {
   public id: string;
@@ -14,7 +14,7 @@ export class AdRecord implements AdEntity {
   public lat: number;
   public lon: number;
 
-  constructor(obj: AdEntity) {
+  constructor(obj: NewAdEntity) {
     if (!obj.name || obj.name.length > 100) {
       throw new ValidationError();
     }
@@ -35,11 +35,20 @@ export class AdRecord implements AdEntity {
       throw new ValidationError();
     }
 
+    this.id = obj.id;
     this.name = obj.name;
     this.description = obj.description;
     this.price = obj.price;
     this.url = obj.url;
     this.lat = obj.lat;
     this.lon = obj.lon;
+  }
+
+  static async getOne(id: string): Promise<AdRecord> {
+    const [results] = pool.execute("SELECT * FROM `ad` WHERE id = :id", {
+      id,
+    }) as unknown as AdRecordResults;
+
+    return results.length === 0 ? null : new AdRecord(results[0]);
   }
 }
