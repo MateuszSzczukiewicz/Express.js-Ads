@@ -3,6 +3,7 @@ import cors from "cors";
 import "express-async-errors";
 import { handleError } from "./utils/errors";
 import rateLimit from "express-rate-limit";
+import { adRouter } from "./routers/ad.router";
 
 const app = express();
 
@@ -20,6 +21,8 @@ app.use(
     legacyHeaders: false,
   }),
 );
+
+app.use("/ad", adRouter);
 
 app.use(handleError);
 
