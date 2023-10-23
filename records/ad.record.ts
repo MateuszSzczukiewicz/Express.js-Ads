@@ -2,6 +2,7 @@ import { AdEntity, NewAdEntity, SimpleAdEntity } from "../types";
 import { ValidationError } from "../utils/errors";
 import { pool } from "../utils/db";
 import { FieldPacket } from "mysql2";
+import { v4 as uuid } from "uuid";
 
 type AdRecordResults = [AdEntity[], FieldPacket];
 
@@ -60,9 +61,22 @@ export class AdRecord implements AdEntity {
       },
     ) as unknown as AdRecordResults;
 
-    return results.map((result) => {
+    return results.map((result): SimpleAdEntity => {
       const { id, lat, lon } = result;
       return { id, lat, lon };
     });
+  }
+
+  async insert(): Promise<void> {
+    if (!this.id) {
+      this.id = uuid();
+    } else {
+      throw new Error();
+    }
+
+    pool.execute(
+      "INSERT INTO `ads`(`id`, `name`, `description`, `price`, `url`, `lat`, `lon`) VALUES (:id, :name, :description, :price, :url, :lat, :lon)",
+      this,
+    );
   }
 }
