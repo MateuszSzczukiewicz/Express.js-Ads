@@ -61,7 +61,7 @@ export class AdRecord implements AdEntity {
       },
     ) as unknown as AdRecordResults;
 
-    return results.map((result): SimpleAdEntity => {
+    return results.map((result) => {
       const { id, lat, lon } = result;
       return { id, lat, lon };
     });

@@ -1,4 +1,4 @@
-import express, { json } from "express";
+import express, { json, Router } from "express";
 import cors from "cors";
 import "express-async-errors";
 import { handleError } from "./utils/errors";
@@ -9,20 +9,22 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.corsOrigin,
   }),
 );
 app.use(json());
 app.use(
   rateLimit({
-    windowMs: 15 * 60 * 1000,
+    windowMs: 5 * 60 * 1000,
     limit: 100,
-    standardHeaders: "draft-7",
-    legacyHeaders: false,
   }),
 );
 
-app.use("/ad", adRouter);
+const router = Router();
+
+router.use("/ad", adRouter);
+
+app.use("/api", router);
 
 app.use(handleError);
 
